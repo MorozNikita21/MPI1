@@ -1,0 +1,30 @@
+#include <iostream>
+#include <cmath>
+#include <omp.h>
+
+double f(double x) {
+    return sin(x); // здесь может быть любая функция
+}
+
+double df_2(double x, double h) {
+    return (f(x + h) - 2 * f(x) + f(x - h)) / (h * h); 
+}
+
+int main() {
+    double a = 0, b = 1; // отрезок
+    int n = 1000; // количество итераций
+    double h = (b - a) / (n - 1); // шаг
+
+    double x = a + h;
+    double res = df_2(x, h);
+#pragma omp parallel for
+    for (int i = 1; i < n - 1; ++i) {
+        x += h;
+        res += df_2(x, h);
+    }
+    res += df_2(x + h, h);
+    res = res / (b - a);
+
+    std::cout << "The second derivative of f on the segment [" << a << "," << b << "] == " << res << std::endl;
+    return 0;
+}
